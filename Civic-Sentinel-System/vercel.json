@@ -1,6 +1,7 @@
 {
   "buildCommand": "pnpm install && pnpm --filter @workspace/civicpulse run build",
-  "outputDirectory": "artifacts/civicpulse/dist",
+  "outputDirectory": "artifacts/civicpulse/dist/public",
   "installCommand": "echo skip",
-  "framework": null
+  "framework": null,
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
