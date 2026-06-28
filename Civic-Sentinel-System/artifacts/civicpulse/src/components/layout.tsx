@@ -292,10 +292,10 @@ function TopBar({ onCommandOpen, onSettingsOpen }: { onCommandOpen: () => void; 
     <header className="topbar h-14 flex items-center px-3 sm:px-6 gap-2 sm:gap-3 sticky top-0 z-50">
       {/* Mobile: brand */}
       <div className="flex md:hidden items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
-          <LayoutDashboard className="w-3.5 h-3.5 text-white" />
-        </div>
-        <span className="text-sm font-bold text-foreground">CivicPulse</span>
+        <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+<img src="/favicon.svg" alt="CivicPulse" className="w-full h-full" />
+</div>
+<span className="text-sm font-bold text-foreground">CivicPulse</span>
       </div>
 
       {/* Desktop: Live system indicators */}
@@ -389,9 +389,9 @@ function FloatingDock({ onSettingsOpen }: { onSettingsOpen: () => void }) {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-3 pb-3 mb-1 border-b border-border/60">
-        <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
-          <LayoutDashboard className="w-4.5 h-4.5 text-white" />
-        </div>
+        <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
+  <img src="/favicon.svg" alt="CivicPulse" className="w-full h-full" />
+</div>
         <AnimatePresence>
           {expanded && (
             <motion.div
