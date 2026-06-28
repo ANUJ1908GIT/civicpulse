@@ -1,0 +1,897 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: CivicPulse AI - Multi-Agent Civic Issue Intelligence Platform
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: reports
+    description: Civic issue reports
+  - name: agents
+    description: AI agent pipeline
+  - name: analytics
+    description: Analytics and intelligence
+  - name: community
+    description: Community and validation
+  - name: authorities
+    description: Authority management
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /reports:
+    get:
+      operationId: listReports
+      tags: [reports]
+      summary: List all civic reports
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, analyzing, validated, assigned, in_progress, resolved, rejected]
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+    post:
+      operationId: createReport
+      tags: [reports]
+      summary: Submit a new civic issue report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: Report created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+
+  /reports/{id}:
+    get:
+      operationId: getReport
+      tags: [reports]
+      summary: Get a specific report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Report details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateReport
+      tags: [reports]
+      summary: Update a report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportUpdate"
+      responses:
+        "200":
+          description: Updated report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+
+  /reports/{id}/analyze:
+    post:
+      operationId: analyzeReport
+      tags: [agents]
+      summary: Run the full multi-agent AI pipeline on a report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Agent pipeline results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentPipelineResult"
+
+  /reports/{id}/validate:
+    post:
+      operationId: validateReport
+      tags: [community]
+      summary: Community member validates a report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidationInput"
+      responses:
+        "200":
+          description: Validation recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+
+  /reports/{id}/resolve:
+    post:
+      operationId: resolveReport
+      tags: [reports]
+      summary: Mark a report as resolved with before/after verification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolutionInput"
+      responses:
+        "200":
+          description: Report resolved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+
+  /analytics/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [analytics]
+      summary: Get overview dashboard statistics
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /analytics/civic-health:
+    get:
+      operationId: getCivicHealthScore
+      tags: [analytics]
+      summary: Get area-level civic health scores
+      responses:
+        "200":
+          description: Civic health scores by area
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicHealthScore"
+
+  /analytics/hotspots:
+    get:
+      operationId: getHotspots
+      tags: [analytics]
+      summary: Get predictive hotspot analysis
+      responses:
+        "200":
+          description: Hotspot data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Hotspot"
+
+  /analytics/trends:
+    get:
+      operationId: getTrends
+      tags: [analytics]
+      summary: Get issue trends over time
+      responses:
+        "200":
+          description: Trend data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrendData"
+
+  /analytics/authority-performance:
+    get:
+      operationId: getAuthorityPerformance
+      tags: [analytics]
+      summary: Get authority department performance metrics
+      responses:
+        "200":
+          description: Authority performance data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuthorityPerformance"
+
+  /analytics/weekly-report:
+    get:
+      operationId: getWeeklyReport
+      tags: [analytics]
+      summary: Get AI-generated weekly municipal report
+      responses:
+        "200":
+          description: Weekly report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklyReport"
+
+  /community/feed:
+    get:
+      operationId: getCommunityFeed
+      tags: [community]
+      summary: Get recent community activity feed
+      responses:
+        "200":
+          description: Community feed items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedItem"
+
+  /authorities:
+    get:
+      operationId: listAuthorities
+      tags: [authorities]
+      summary: List all authority departments
+      responses:
+        "200":
+          description: List of authorities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Authority"
+
+  /agents/pipeline-status:
+    get:
+      operationId: getPipelineStatus
+      tags: [agents]
+      summary: Get recent agent pipeline execution logs
+      responses:
+        "200":
+          description: Pipeline logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PipelineLog"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Report:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - status
+        - category
+        - severity
+        - createdAt
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        imageBase64:
+          type: ["string", "null"]
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        address:
+          type: ["string", "null"]
+        neighborhood:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, analyzing, validated, assigned, in_progress, resolved, rejected]
+        category:
+          type: ["string", "null"]
+        subcategory:
+          type: ["string", "null"]
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        urgencyScore:
+          type: ["number", "null"]
+        impactScore:
+          type: ["number", "null"]
+        riskScore:
+          type: ["number", "null"]
+        priorityScore:
+          type: ["number", "null"]
+        resolutionProbability:
+          type: ["number", "null"]
+        civicHealthImpact:
+          type: ["number", "null"]
+        assignedDepartment:
+          type: ["string", "null"]
+        estimatedResolutionDays:
+          type: ["integer", "null"]
+        validationCount:
+          type: integer
+          default: 0
+        upvotes:
+          type: integer
+          default: 0
+        duplicateOfId:
+          type: ["integer", "null"]
+        aiAnalysis:
+          $ref: "#/components/schemas/AiAnalysis"
+        resolvedImageUrl:
+          type: ["string", "null"]
+        resolutionNote:
+          type: ["string", "null"]
+        resolvedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    ReportInput:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          minLength: 5
+        description:
+          type: string
+          minLength: 10
+        imageBase64:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        address:
+          type: ["string", "null"]
+        neighborhood:
+          type: ["string", "null"]
+        reporterName:
+          type: ["string", "null"]
+
+    ReportUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, analyzing, validated, assigned, in_progress, resolved, rejected]
+        assignedDepartment:
+          type: ["string", "null"]
+        resolutionNote:
+          type: ["string", "null"]
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+
+    ValidationInput:
+      type: object
+      required:
+        - isValid
+      properties:
+        isValid:
+          type: boolean
+        comment:
+          type: ["string", "null"]
+        validatorName:
+          type: ["string", "null"]
+
+    ResolutionInput:
+      type: object
+      required:
+        - resolutionNote
+      properties:
+        resolutionNote:
+          type: string
+        resolvedImageBase64:
+          type: ["string", "null"]
+        resolvedImageUrl:
+          type: ["string", "null"]
+
+    AiAnalysis:
+      type: object
+      properties:
+        visionAgent:
+          type: object
+          properties:
+            detectedIssue:
+              type: string
+            safetyRisks:
+              type: array
+              items:
+                type: string
+            infrastructureDamage:
+              type: string
+            confidence:
+              type: number
+        classificationAgent:
+          type: object
+          properties:
+            category:
+              type: string
+            subcategory:
+              type: string
+            department:
+              type: string
+            tags:
+              type: array
+              items:
+                type: string
+        geospatialAgent:
+          type: object
+          properties:
+            neighborhood:
+              type: string
+            nearbyReportsCount:
+              type: integer
+            localityContext:
+              type: string
+        duplicateAgent:
+          type: object
+          properties:
+            isDuplicate:
+              type: boolean
+            similarReportIds:
+              type: array
+              items:
+                type: integer
+            confidence:
+              type: number
+        priorityAgent:
+          type: object
+          properties:
+            urgencyScore:
+              type: number
+            impactScore:
+              type: number
+            riskScore:
+              type: number
+            reasoning:
+              type: string
+        routingAgent:
+          type: object
+          properties:
+            assignedDepartment:
+              type: string
+            escalationRequired:
+              type: boolean
+            estimatedDays:
+              type: integer
+        predictiveAgent:
+          type: object
+          properties:
+            recurrenceRisk:
+              type: number
+            hotspotPotential:
+              type: boolean
+            forecastedImpact:
+              type: string
+        resolutionAdvisor:
+          type: object
+          properties:
+            suggestedActions:
+              type: array
+              items:
+                type: string
+            escalationStrategy:
+              type: string
+            resolutionProbability:
+              type: number
+
+    AgentPipelineResult:
+      type: object
+      required:
+        - reportId
+        - status
+        - agents
+      properties:
+        reportId:
+          type: integer
+        status:
+          type: string
+        agents:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentResult"
+        finalReport:
+          $ref: "#/components/schemas/Report"
+
+    AgentResult:
+      type: object
+      required:
+        - agentName
+        - status
+        - durationMs
+      properties:
+        agentName:
+          type: string
+        status:
+          type: string
+          enum: [running, completed, failed]
+        durationMs:
+          type: integer
+        output:
+          type: object
+          additionalProperties: true
+        error:
+          type: ["string", "null"]
+
+    DashboardStats:
+      type: object
+      required:
+        - totalReports
+        - pendingReports
+        - resolvedReports
+        - criticalReports
+        - avgResolutionDays
+        - civicHealthScore
+        - reportsByCategory
+        - reportsByStatus
+        - reportsBySeverity
+        - recentReports
+      properties:
+        totalReports:
+          type: integer
+        pendingReports:
+          type: integer
+        resolvedReports:
+          type: integer
+        criticalReports:
+          type: integer
+        avgResolutionDays:
+          type: number
+        civicHealthScore:
+          type: number
+        reportsByCategory:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+        reportsByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+        reportsBySeverity:
+          type: array
+          items:
+            type: object
+            properties:
+              severity:
+                type: string
+              count:
+                type: integer
+        recentReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/Report"
+
+    CivicHealthScore:
+      type: object
+      required:
+        - neighborhood
+        - score
+        - trend
+        - issueCount
+        - resolvedCount
+      properties:
+        neighborhood:
+          type: string
+        score:
+          type: number
+        trend:
+          type: string
+          enum: [improving, stable, declining]
+        issueCount:
+          type: integer
+        resolvedCount:
+          type: integer
+        rank:
+          type: integer
+        primaryIssue:
+          type: ["string", "null"]
+
+    Hotspot:
+      type: object
+      required:
+        - id
+        - neighborhood
+        - riskLevel
+        - predictedIssues
+        - confidence
+      properties:
+        id:
+          type: integer
+        neighborhood:
+          type: string
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        riskLevel:
+          type: string
+          enum: [low, moderate, high, critical]
+        predictedIssues:
+          type: array
+          items:
+            type: string
+        confidence:
+          type: number
+        reportCount:
+          type: integer
+        aiReasoning:
+          type: ["string", "null"]
+
+    TrendData:
+      type: object
+      required:
+        - weekly
+        - categoryTrends
+        - resolutionRate
+      properties:
+        weekly:
+          type: array
+          items:
+            type: object
+            properties:
+              week:
+                type: string
+              reported:
+                type: integer
+              resolved:
+                type: integer
+        categoryTrends:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              thisWeek:
+                type: integer
+              lastWeek:
+                type: integer
+              change:
+                type: number
+        resolutionRate:
+          type: number
+
+    AuthorityPerformance:
+      type: object
+      required:
+        - department
+        - assignedCount
+        - resolvedCount
+        - avgResolutionDays
+        - performanceScore
+      properties:
+        department:
+          type: string
+        assignedCount:
+          type: integer
+        resolvedCount:
+          type: integer
+        avgResolutionDays:
+          type: number
+        performanceScore:
+          type: number
+        trend:
+          type: string
+          enum: [improving, stable, declining]
+        pendingCritical:
+          type: integer
+
+    WeeklyReport:
+      type: object
+      required:
+        - generatedAt
+        - summary
+        - highlights
+        - recommendations
+        - departmentSummaries
+      properties:
+        generatedAt:
+          type: string
+        summary:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        departmentSummaries:
+          type: array
+          items:
+            type: object
+            properties:
+              department:
+                type: string
+              summary:
+                type: string
+              issuesResolved:
+                type: integer
+              issuesPending:
+                type: integer
+        civicHealthTrend:
+          type: string
+
+    FeedItem:
+      type: object
+      required:
+        - id
+        - type
+        - message
+        - timestamp
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [report_submitted, report_validated, report_resolved, agent_completed, escalation, duplicate_detected]
+        message:
+          type: string
+        reportId:
+          type: ["integer", "null"]
+        neighborhood:
+          type: ["string", "null"]
+        severity:
+          type: ["string", "null"]
+        timestamp:
+          type: string
+
+    Authority:
+      type: object
+      required:
+        - id
+        - name
+        - department
+        - activeIssues
+        - resolvedThisMonth
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        department:
+          type: string
+        email:
+          type: ["string", "null"]
+        activeIssues:
+          type: integer
+        resolvedThisMonth:
+          type: integer
+        avgResponseHours:
+          type: number
+
+    PipelineLog:
+      type: object
+      required:
+        - id
+        - reportId
+        - agentName
+        - status
+        - startedAt
+      properties:
+        id:
+          type: integer
+        reportId:
+          type: integer
+        agentName:
+          type: string
+        status:
+          type: string
+          enum: [running, completed, failed]
+        durationMs:
+          type: ["integer", "null"]
+        outputSummary:
+          type: ["string", "null"]
+        startedAt:
+          type: string
+        completedAt:
+          type: ["string", "null"]

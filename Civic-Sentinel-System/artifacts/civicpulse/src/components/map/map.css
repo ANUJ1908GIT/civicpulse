@@ -1,0 +1,152 @@
+/* ─────────────────────────────────────────────
+   CivicPulse Map Styles
+   File: src/components/map/map.css
+───────────────────────────────────────────── */
+
+/* Leaflet base override */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  background: #e8eef4;
+  border-radius: inherit;
+}
+.dark .leaflet-container {
+  background: hsl(222, 47%, 4%);
+}
+
+/* ── Dark tile layer tint ── */
+.leaflet-tile-pane {
+  filter: brightness(0.95) saturate(0.85);
+}
+.dark .leaflet-tile-pane {
+  filter: brightness(0.45) saturate(0.3) hue-rotate(200deg) invert(0.05);
+}
+
+/* ── Remove default Leaflet UI chrome ── */
+.leaflet-control-zoom,
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* ── Custom popup ── */
+.leaflet-popup-content-wrapper {
+  background: hsl(222 40% 8%) !important;
+  border: 1px solid hsl(217 33% 18%) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(14,165,233,0.1) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.leaflet-popup-tip {
+  background: hsl(222 40% 8%) !important;
+}
+.leaflet-popup-close-button {
+  color: hsl(215 20% 55%) !important;
+  font-size: 16px !important;
+  top: 10px !important;
+  right: 10px !important;
+  padding: 0 !important;
+}
+.leaflet-popup-close-button:hover {
+  color: #0ea5e9 !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+/* ── Custom marker icon ── */
+.civic-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.civic-marker-inner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 50% 50% 2px;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255,255,255,0.25);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease;
+}
+.civic-marker-inner:hover {
+  transform: rotate(-45deg) scale(1.15);
+}
+.civic-marker-inner svg {
+  transform: rotate(45deg);
+  width: 14px;
+  height: 14px;
+  color: white;
+}
+
+/* Severity colors */
+.civic-marker-critical .civic-marker-inner { background: rgba(239,68,68,0.9);  border-color: rgba(239,68,68,0.6);  box-shadow: 0 4px 16px rgba(239,68,68,0.4); }
+.civic-marker-high     .civic-marker-inner { background: rgba(249,115,22,0.9); border-color: rgba(249,115,22,0.6); box-shadow: 0 4px 16px rgba(249,115,22,0.4); }
+.civic-marker-medium   .civic-marker-inner { background: rgba(234,179,8,0.9);  border-color: rgba(234,179,8,0.6);  box-shadow: 0 4px 16px rgba(234,179,8,0.4); }
+.civic-marker-low      .civic-marker-inner { background: rgba(16,185,129,0.9); border-color: rgba(16,185,129,0.6); box-shadow: 0 4px 16px rgba(16,185,129,0.4); }
+.civic-marker-hotspot  .civic-marker-inner { background: rgba(139,92,246,0.9); border-color: rgba(139,92,246,0.6); box-shadow: 0 4px 16px rgba(139,92,246,0.4); }
+
+/* Pulse animation for critical */
+.civic-marker-critical .civic-marker-inner::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(239,68,68,0.5);
+  animation: marker-pulse 1.8s ease-out infinite;
+}
+@keyframes marker-pulse {
+  0%   { opacity: 1; transform: scale(0.8); }
+  100% { opacity: 0; transform: scale(1.8); }
+}
+
+/* ── Marker clusters ── */
+.marker-cluster {
+  background: rgba(14,165,233,0.15) !important;
+  border: 2px solid rgba(14,165,233,0.5) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 12px rgba(14,165,233,0.3) !important;
+}
+.marker-cluster div {
+  background: rgba(14,165,233,0.85) !important;
+  border-radius: 50% !important;
+  color: white !important;
+  font-family: var(--font-mono, monospace) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.marker-cluster-small  { width: 36px !important; height: 36px !important; margin-left: -18px !important; margin-top: -18px !important; }
+.marker-cluster-medium { width: 46px !important; height: 46px !important; margin-left: -23px !important; margin-top: -23px !important; }
+.marker-cluster-large  { width: 58px !important; height: 58px !important; margin-left: -29px !important; margin-top: -29px !important; }
+.marker-cluster-small  div { width: 28px !important; height: 28px !important; margin: 4px !important; }
+.marker-cluster-medium div { width: 36px !important; height: 36px !important; margin: 5px !important; }
+.marker-cluster-large  div { width: 46px !important; height: 46px !important; margin: 6px !important; }
+
+/* ── Search box ── */
+.map-search-box {
+  background: hsl(222 40% 7%) !important;
+  border: 1px solid hsl(217 33% 16%) !important;
+  border-radius: 10px !important;
+  color: hsl(210 40% 97%) !important;
+  font-family: var(--font-mono, monospace) !important;
+  font-size: 12px !important;
+  padding: 8px 12px 8px 34px !important;
+  outline: none !important;
+  transition: border-color 0.2s !important;
+  width: 200px !important;
+}
+.map-search-box:focus {
+  border-color: rgba(14,165,233,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.1) !important;
+}
+.map-search-box::placeholder {
+  color: hsl(215 20% 42%) !important;
+}
